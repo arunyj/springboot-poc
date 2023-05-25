@@ -1,6 +1,6 @@
 package com.elixr.training.exception.handler;
 
-import com.elixr.training.dto.Response;
+import com.elixr.training.dto.ResponseMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +16,17 @@ public class GlobalExceptionHandler {
     private String maxFileUploadSize;
 
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<Response> handleMultipartExceptionException(MultipartException exc) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Please select a file to upload."));
+    public ResponseEntity<ResponseMessage> handleMultipartExceptionException(MultipartException exc) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("Please select a file to upload."));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Response> handleMaxSizeException(MaxUploadSizeExceededException exc) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("File too large. Please upload file size lesser than " +  maxFileUploadSize + "."));
+    public ResponseEntity<ResponseMessage> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("File too large. Please upload file size lesser than " +  maxFileUploadSize + "."));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response> handleException(Exception exc) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Error occurred! " + exc.getMessage()));
+    public ResponseEntity<ResponseMessage> handleException(Exception exc) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("Error occurred! " + exc.getMessage()));
     }
 }
