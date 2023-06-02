@@ -15,9 +15,6 @@ import java.util.UUID;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @Value("${spring.servlet.multipart.max-file-size}")
-    private String maxFileUploadSize;
-
 //    @ExceptionHandler(MultipartException.class)
 //    public ResponseEntity<ResponseData> handleMultipartExceptionException(MultipartException exc) {
 //        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseData("Please select a file to upload."));
@@ -30,6 +27,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseData> handleException(Exception exc) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseData("Error occurred! " + exc.getMessage(), ResponseStatus.FAILURE, UUID.randomUUID(), null));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseData(HttpStatus.BAD_REQUEST.value(), "Error occurred! " + exc.getMessage(), ResponseStatus.FAILURE, UUID.randomUUID(), null));
     }
 }

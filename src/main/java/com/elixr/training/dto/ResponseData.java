@@ -9,6 +9,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class ResponseData {
+    private int statusCode;
     private String message;
     private String status;
     private UUID traceId;

@@ -12,11 +12,11 @@ import java.util.UUID;
 
 @Data
 @Document("files")
-@RequiredArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class FileInfo {
     @Id
-    private UUID id;
+    private UUID fileId;
     @NonNull
     private String userName;
     @NonNull
