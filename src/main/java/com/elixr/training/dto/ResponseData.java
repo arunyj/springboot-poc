@@ -12,6 +12,6 @@ public class ResponseData {
     private int statusCode;
     private String message;
     private String status;
-    private UUID traceId;
+    private String traceId;
     private Object data;
 }

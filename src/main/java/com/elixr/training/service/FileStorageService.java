@@ -11,4 +11,5 @@ public interface FileStorageService {
     public FileInfo save(File file) throws IOException;
 
     FileInfo get(String id) throws FileNotFoundException;
+
 }

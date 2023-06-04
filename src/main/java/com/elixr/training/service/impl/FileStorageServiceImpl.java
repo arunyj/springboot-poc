@@ -1,5 +1,6 @@
 package com.elixr.training.service.impl;
 
+import brave.Tracer;
 import com.elixr.training.model.FileInfo;
 import com.elixr.training.repository.FileRepository;
 import com.elixr.training.service.FileStorageService;
@@ -7,14 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +22,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     private static final String ALLOWED_FILE_TYPE = "text/plain";
     @Value("${file.upload.folder}")
     private String uploadFolder;
+
+    @Autowired
+    private Tracer tracer;
 
     @Autowired
     FileRepository fileRepository;
