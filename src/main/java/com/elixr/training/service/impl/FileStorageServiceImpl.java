@@ -1,6 +1,8 @@
 package com.elixr.training.service.impl;
 
 import brave.Tracer;
+import com.elixr.training.exception.FileInfoNotFoundException;
+import com.elixr.training.exception.InvalidInputException;
 import com.elixr.training.model.FileInfo;
 import com.elixr.training.repository.FileRepository;
 import com.elixr.training.service.FileStorageService;
@@ -19,9 +21,22 @@ import java.util.UUID;
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
-    private static final String ALLOWED_FILE_TYPE = "text/plain";
+    private static final String ALLOWED_FILE_TYPE = "txt";
     @Value("${file.upload.folder}")
     private String uploadFolder;
+
+    @Value("${message.error.invalid.extension}")
+    private String invalidExtensionMessage;
+
+    @Value("${message.error.invalid.file}")
+    private String invalidFileMessage;
+
+    @Value("${message.error.file.info.not.found}")
+    private String fileInfoNotFoundMessage;
+
+    @Value("${message.error.invalid.id}")
+    private String fileIdInvalidMessage;
+
 
     @Autowired
     private Tracer tracer;
@@ -30,21 +45,24 @@ public class FileStorageServiceImpl implements FileStorageService {
     FileRepository fileRepository;
 
     @Override
-    public FileInfo save(File file) throws IOException {
-//        if (file.isEmpty()) {
-//            log.error("Input file is empty. Please select a file to upload. ");
-//            throw new RuntimeException("Please select a file to upload.");
-//        }
-//
-//        if(!Objects.equals(file.getContentType(), ALLOWED_FILE_TYPE)) {
-//            log.error("Only .txt files are allowed to upload.");
-//            throw new RuntimeException("Only .txt files are allowed to upload.");
-//        }
-        // Get the file and save it in specified location
+    public FileInfo save(File file) throws InvalidInputException {
+
         String fileName = file.getName();
+
+        if(!getFileExtension(fileName).equals(ALLOWED_FILE_TYPE)) {
+            log.error(invalidExtensionMessage);
+            throw new InvalidInputException(String.format(invalidExtensionMessage,fileName));
+        }
+        // Get the file and save it in specified location
+
         Path path = Paths.get(uploadFolder + fileName);
-        OutputStream out = new FileOutputStream(path.toFile());
-        out.close();
+        try {
+            OutputStream out = new FileOutputStream(path.toFile());
+            out.close();
+        } catch (IOException ex) {
+            log.error(invalidFileMessage, ex.getMessage());
+            throw new InvalidInputException(invalidFileMessage);
+        }
         log.info("File validation success");
         //Save file info to DB
         FileInfo fileInfo = new FileInfo(UUID.randomUUID(),"Test", fileName, path.toString(), new Date());
@@ -52,11 +70,25 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public FileInfo get(String id) throws FileNotFoundException {
-        Optional<FileInfo> optional = fileRepository.findById(id.toString());
-
+    public FileInfo get(String id) throws FileInfoNotFoundException, InvalidInputException {
+        UUID uuid = converToUUID(id);
+        Optional<FileInfo> optional = fileRepository.findByFileId(uuid);
         return optional.map(fileInfo-> fileInfo)
-                .orElseThrow(() -> new FileNotFoundException());
+                .orElseThrow(() -> new FileInfoNotFoundException(fileInfoNotFoundMessage));
     }
 
+    private static String getFileExtension(String fullName) {
+        int dotIndex = fullName.lastIndexOf('.');
+        return (dotIndex == -1) ? "" : fullName.substring(dotIndex + 1);
+    }
+
+    private UUID converToUUID(String id) throws InvalidInputException {
+        UUID uuid = null;
+        try {
+            uuid = UUID.fromString(id);
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidInputException(fileIdInvalidMessage);
+        }
+        return uuid;
+    }
 }

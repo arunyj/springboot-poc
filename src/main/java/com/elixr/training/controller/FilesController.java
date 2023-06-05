@@ -2,6 +2,8 @@ package com.elixr.training.controller;
 
 import com.elixr.training.constants.ResponseStatus;
 import com.elixr.training.dto.ResponseData;
+import com.elixr.training.exception.FileInfoNotFoundException;
+import com.elixr.training.exception.InvalidInputException;
 import com.elixr.training.model.FileInfo;
 import com.elixr.training.service.TracingService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,7 @@ public class FilesController {
     FileStorageService storageService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ResponseData> uploadFile(@RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<ResponseData> uploadFile(@RequestParam("file") MultipartFile multipartFile) throws InvalidInputException {
         log.info("File upload request received.");
         File file = new File(multipartFile.getOriginalFilename());
         FileInfo fileInfo = storageService.save(file);
@@ -38,7 +40,7 @@ public class FilesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseData> uploadFile(@PathVariable("id") String id) throws IOException {
+    public ResponseEntity<ResponseData> uploadFile(@PathVariable("id") String id) throws FileInfoNotFoundException, InvalidInputException {
         log.info("File get request received.");
         FileInfo fileInfo = storageService.get(id);
         String  message = "File info retrieved successfully";
