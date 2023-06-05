@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public interface FileStorageService {
-    public FileInfo save(File file) throws InvalidInputException;
+    public FileInfo save(File file, String userName) throws InvalidInputException;
 
     FileInfo get(String id) throws FileInfoNotFoundException, InvalidInputException;
 

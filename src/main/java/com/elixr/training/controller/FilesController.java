@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-import io.micrometer.observation.Observation.Context;
-import brave.Tracer;
+
 @Slf4j
 @RestController
 @RequestMapping("file")
@@ -31,10 +28,10 @@ public class FilesController {
     FileStorageService storageService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ResponseData> uploadFile(@RequestParam("file") MultipartFile multipartFile) throws InvalidInputException {
+    public ResponseEntity<ResponseData> uploadFile(@RequestParam("file") MultipartFile multipartFile, @RequestParam("userName") String userName) throws InvalidInputException {
         log.info("File upload request received.");
         File file = new File(multipartFile.getOriginalFilename());
-        FileInfo fileInfo = storageService.save(file);
+        FileInfo fileInfo = storageService.save(file, userName);
         String  message = "Uploaded the file successfully: " + multipartFile.getOriginalFilename();
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), message, ResponseStatus.SUCCESS, tracingService.getTraceId(), fileInfo));
     }

@@ -45,7 +45,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     FileRepository fileRepository;
 
     @Override
-    public FileInfo save(File file) throws InvalidInputException {
+    public FileInfo save(File file, String userName) throws InvalidInputException {
 
         String fileName = file.getName();
 
@@ -65,7 +65,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
         log.info("File validation success");
         //Save file info to DB
-        FileInfo fileInfo = new FileInfo(UUID.randomUUID(),"Test", fileName, path.toString(), new Date());
+        FileInfo fileInfo = new FileInfo(UUID.randomUUID(),userName, fileName, path.toString(), new Date());
         return fileRepository.save(fileInfo);
     }
 
