@@ -60,6 +60,7 @@ public class FilesControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.statusCode", Matchers.is(HttpStatus.OK.value())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(SUCCESS)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.traceId", Matchers.is(traceId)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.fileId", Matchers.is(FILE_ID)));
     }
 }
