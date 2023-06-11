@@ -39,12 +39,10 @@ public class FilesController {
     @PostMapping("/upload")
     public ResponseEntity<ResponseData> uploadFile(@RequestParam("file") MultipartFile multipartFile, @RequestParam("userName") String userName) throws InvalidInputException {
         log.info("File upload request received.");
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new InvalidInputException(invalidFileMessage);
-        }
         File file = new File(multipartFile.getOriginalFilename());
         FileInfo fileInfo = storageService.save(file, userName);
         String  message = String.format(uploadSuccessMsg, multipartFile.getOriginalFilename());
+        log.info(message);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), message, ResponseStatus.SUCCESS, tracingService.getTraceId(), fileInfo));
     }
 
