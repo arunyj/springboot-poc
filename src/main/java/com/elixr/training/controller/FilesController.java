@@ -24,6 +24,12 @@ public class FilesController {
     @Value("${message.error.invalid.file}")
     private String invalidFileMessage;
 
+    @Value("${message.success.file.upload}")
+    private String uploadSuccessMsg;
+
+    @Value("${message.success.file.retrieve}")
+    private String getFileSuccessMsg;
+
     @Autowired
     TracingService tracingService;
 
@@ -38,7 +44,7 @@ public class FilesController {
         }
         File file = new File(multipartFile.getOriginalFilename());
         FileInfo fileInfo = storageService.save(file, userName);
-        String  message = "Uploaded the file successfully: " + multipartFile.getOriginalFilename();
+        String  message = String.format(uploadSuccessMsg, multipartFile.getOriginalFilename());
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), message, ResponseStatus.SUCCESS, tracingService.getTraceId(), fileInfo));
     }
 
@@ -46,7 +52,7 @@ public class FilesController {
     public ResponseEntity<ResponseData> uploadFile(@PathVariable("id") String id) throws FileInfoNotFoundException, InvalidInputException {
         log.info("File get request received.");
         FileInfo fileInfo = storageService.get(id);
-        String  message = "File info retrieved successfully";
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), message, ResponseStatus.SUCCESS, tracingService.getTraceId(), fileInfo ));
+        log.info(getFileSuccessMsg);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), getFileSuccessMsg, ResponseStatus.SUCCESS, tracingService.getTraceId(), fileInfo ));
     }
 }
