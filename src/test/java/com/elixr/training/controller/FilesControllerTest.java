@@ -1,5 +1,6 @@
 package com.elixr.training.controller;
 
+import com.elixr.training.exception.InvalidInputException;
 import com.elixr.training.model.FileInfo;
 import com.elixr.training.service.impl.FileStorageServiceImpl;
 import com.elixr.training.service.impl.TracingServiceImpl;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @WebMvcTest(controllers = FilesController.class)
 public class FilesControllerTest {
@@ -36,6 +38,7 @@ public class FilesControllerTest {
     private static final String FAILURE = "FAILED";
     private static final String FILE_NOT_FOUND="File id not found";
     private static final String INVALID_USERNAME = "Invalid username";
+    private MockMultipartFile mockMultipartFile = new MockMultipartFile("file", FILE_NAME, CONTENT_TYPE, FILE_CONTENT.getBytes());
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,7 +54,6 @@ public class FilesControllerTest {
         UUID fileId = UUID.fromString(FILE_ID);
         String traceId = UUID.randomUUID().toString();
         FileInfo fileToReturn = new FileInfo(fileId, USER_NAME, FILE_NAME, "C://test//" + FILE_NAME, new Date());
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", FILE_NAME, CONTENT_TYPE, FILE_CONTENT.getBytes());
         Mockito.when(storageService.save(any(), any())).thenReturn(fileToReturn);
         Mockito.when(tracingService.getTraceId()).thenReturn(traceId);
         mockMvc.perform(MockMvcRequestBuilders.multipart(UPLOAD_API_URL)
@@ -62,5 +64,18 @@ public class FilesControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(SUCCESS)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.traceId", Matchers.is(traceId)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.fileId", Matchers.is(FILE_ID)));
+    }
+
+    @Test
+    void uploadFileError() throws Exception {
+        UUID fileId = UUID.fromString(FILE_ID);
+        Mockito.when(storageService.save(any(), anyString())).thenThrow(new InvalidInputException(INVALID_FILE));
+        this.mockMvc.perform(MockMvcRequestBuilders.multipart(UPLOAD_URL)
+                        .file(mockMultipartFile)
+                        .param("userName", USER_NAME))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.statusCode", Matchers.is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(FAILURE)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorMsg", Matchers.is(INVALID_USERNAME)));
     }
 }

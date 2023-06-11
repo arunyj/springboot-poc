@@ -1,5 +1,6 @@
 package com.elixr.training.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
@@ -20,5 +21,6 @@ public class ResponseData {
     private String status;
     @NonNull
     private String traceId;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Object data;
 }

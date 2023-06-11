@@ -9,6 +9,7 @@ import com.elixr.training.service.TracingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.elixr.training.service.FileStorageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,11 @@ import java.io.File;
 
 @Slf4j
 @RestController
-@RequestMapping("file")
+@RequestMapping("/file")
 public class FilesController {
 
+    @Value("${message.error.invalid.file}")
+    private String invalidFileMessage;
 
     @Autowired
     TracingService tracingService;
@@ -30,6 +33,9 @@ public class FilesController {
     @PostMapping("/upload")
     public ResponseEntity<ResponseData> uploadFile(@RequestParam("file") MultipartFile multipartFile, @RequestParam("userName") String userName) throws InvalidInputException {
         log.info("File upload request received.");
+        if (multipartFile == null || multipartFile.isEmpty()) {
+            throw new InvalidInputException(invalidFileMessage);
+        }
         File file = new File(multipartFile.getOriginalFilename());
         FileInfo fileInfo = storageService.save(file, userName);
         String  message = "Uploaded the file successfully: " + multipartFile.getOriginalFilename();

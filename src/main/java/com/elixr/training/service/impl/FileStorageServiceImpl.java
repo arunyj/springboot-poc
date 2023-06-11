@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +33,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Value("${message.error.invalid.file}")
     private String invalidFileMessage;
 
+    @Value("${message.error.invalid.username}")
+    private String invalidUserNameMessage;
+
     @Value("${message.error.file.info.not.found}")
     private String fileInfoNotFoundMessage;
 
@@ -47,14 +52,13 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public FileInfo save(File file, String userName) throws InvalidInputException {
 
-        String fileName = file.getName();
 
-        if(!getFileExtension(fileName).equals(ALLOWED_FILE_TYPE)) {
-            log.error(invalidExtensionMessage);
-            throw new InvalidInputException(String.format(invalidExtensionMessage,fileName));
-        }
+
+        //Validations
+        validateFileInfo(file, userName);
+
         // Get the file and save it in specified location
-
+        String fileName = file.getName();
         Path path = Paths.get(uploadFolder + fileName);
         try {
             OutputStream out = new FileOutputStream(path.toFile());
@@ -67,6 +71,24 @@ public class FileStorageServiceImpl implements FileStorageService {
         //Save file info to DB
         FileInfo fileInfo = new FileInfo(UUID.randomUUID(),userName, fileName, path.toString(), new Date());
         return fileRepository.save(fileInfo);
+    }
+
+    private void validateFileInfo(File file, String userName) throws InvalidInputException {
+
+        if (file == null) {
+            throw new InvalidInputException(invalidFileMessage);
+        }
+
+        String fileName = file.getName();
+        if(!getFileExtension(fileName).equals(ALLOWED_FILE_TYPE)) {
+            log.error(invalidExtensionMessage);
+            throw new InvalidInputException(String.format(invalidExtensionMessage, fileName));
+        }
+
+        if(!StringUtils.hasText(userName)) {
+            log.error(invalidUserNameMessage);
+            throw new InvalidInputException(String.format(invalidUserNameMessage));
+        }
     }
 
     @Override
@@ -91,4 +113,5 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
         return uuid;
     }
+
 }
