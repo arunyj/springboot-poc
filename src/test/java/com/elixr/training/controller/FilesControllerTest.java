@@ -4,7 +4,6 @@ import com.elixr.training.exception.FileInfoNotFoundException;
 import com.elixr.training.exception.InvalidInputException;
 import com.elixr.training.model.FileInfo;
 import com.elixr.training.service.impl.FileStorageServiceImpl;
-import com.elixr.training.service.impl.TracingServiceImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,7 +15,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.UUID;
