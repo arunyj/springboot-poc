@@ -4,6 +4,7 @@ import com.elixr.training.exception.FileInfoNotFoundException;
 import com.elixr.training.exception.InvalidInputException;
 import com.elixr.training.model.FileInfo;
 import com.elixr.training.service.impl.FileStorageServiceImpl;
+import com.elixr.training.service.impl.TracingServiceImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

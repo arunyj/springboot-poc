@@ -52,8 +52,6 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public FileInfo save(File file, String userName) throws InvalidInputException {
 
-
-
         //Validations
         validateFileInfo(file, userName);
 

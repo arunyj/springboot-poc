@@ -1,5 +1,6 @@
 package com.elixr.training.service.impl;
 
+import brave.Span;
 import com.elixr.training.service.TracingService;
 import brave.Tracer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ public class TracingServiceImpl implements TracingService {
 
     @Override
     public String getTraceId() {
-        var span = tracer.currentSpan();
+        Span span = tracer.currentSpan();
         return span.context().traceIdString();
     }
 }
