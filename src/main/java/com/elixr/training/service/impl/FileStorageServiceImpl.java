@@ -65,7 +65,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             log.error(invalidFileMessage, ex.getMessage());
             throw new InvalidInputException(invalidFileMessage);
         }
-        log.info("File validation success");
+        log.info("File uploaded to the specified location");
         //Save file info to DB
         FileInfo fileInfo = new FileInfo(UUID.randomUUID(),userName, fileName, path.toString(), new Date());
         return fileRepository.save(fileInfo);

@@ -1,20 +1,15 @@
 package com.elixr.training.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.*;
 
-import java.util.UUID;
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ResponseData {
     @NonNull
-    private int statusCode;
+    private Integer statusCode;
     @NonNull
     private String message;
     @NonNull

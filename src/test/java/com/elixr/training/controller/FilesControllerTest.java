@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
@@ -32,6 +33,8 @@ public class FilesControllerTest {
     private static final String FILE_ID = "36b8f84d-df4e-4d49-b662-bcde71a8764f";
     private static final String USER_NAME = "Arun";
     private static final String FILE_NAME = "test.txt";
+
+    private static final String FILE_URL = "C://test//" + FILE_NAME;
     private static final String INVALID_FILE = "File is empty! Please choose a file";
     private static final String CONTENT_TYPE = "text/plain";
     private static final String FILE_CONTENT = "test";
@@ -45,7 +48,7 @@ public class FilesControllerTest {
     private UUID fileId = UUID.fromString(FILE_ID);
     private String traceId = UUID.randomUUID().toString();
 
-    FileInfo fileToReturn = new FileInfo(fileId, USER_NAME, FILE_NAME, "C://test//" + FILE_NAME, new Date());
+    FileInfo fileToReturn = new FileInfo(fileId, USER_NAME, FILE_NAME, FILE_URL, new Date());
 
 
     @Autowired
@@ -59,7 +62,7 @@ public class FilesControllerTest {
 
     @Test
     void uploadFileSuccess() throws Exception {
-        Mockito.when(storageService.save(any(), any())).thenReturn(fileToReturn);
+        Mockito.when(storageService.save(any(File.class), anyString())).thenReturn(fileToReturn);
         Mockito.when(tracingService.getTraceId()).thenReturn(traceId);
         mockMvc.perform(MockMvcRequestBuilders.multipart(API_URL_FILE_UPLOAD)
                         .file(mockMultipartFile)
@@ -74,7 +77,7 @@ public class FilesControllerTest {
     @Test
     void uploadFileError() throws Exception {
         Mockito.when(tracingService.getTraceId()).thenReturn(traceId);
-        Mockito.when(storageService.save(any(), anyString())).thenThrow(new InvalidInputException(INVALID_FILE));
+        Mockito.when(storageService.save(any(File.class), anyString())).thenThrow(new InvalidInputException(INVALID_FILE));
         mockMvc.perform(MockMvcRequestBuilders.multipart(API_URL_FILE_UPLOAD)
                         .file(mockMultipartFile)
                         .param("userName", USER_NAME))
