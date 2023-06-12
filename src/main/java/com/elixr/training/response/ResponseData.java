@@ -1,4 +1,4 @@
-package com.elixr.training.dto;
+package com.elixr.training.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

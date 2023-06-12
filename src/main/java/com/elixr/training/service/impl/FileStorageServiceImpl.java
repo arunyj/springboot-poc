@@ -103,7 +103,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     private UUID converToUUID(String id) throws InvalidInputException {
-        UUID uuid = null;
+        UUID uuid;
         try {
             uuid = UUID.fromString(id);
         } catch (IllegalArgumentException exception) {

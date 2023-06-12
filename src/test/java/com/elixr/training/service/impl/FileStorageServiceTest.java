@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 import java.util.Date;
@@ -25,25 +25,28 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class FileStorageServiceTest {
     @Mock
-    FileRepository fileRepository;
+    private FileRepository fileRepository;
 
     @InjectMocks
-    FileStorageServiceImpl fileStorageService;
+    private FileStorageServiceImpl fileStorageService;
 
     private static final String USER_NAME = "Test User";
     private static final String FILE_NAME = "test.txt";
     private static final String FILE_URL = "C://test//" + FILE_NAME;
-
     private static final String CONTENT_TYPE = "text/plain";
     private static final String FILE_CONTENT = "test";
     private UUID uuid = UUID.randomUUID();
     private static final String ERROR_MESSAGE_FILE_NOT_FOUND = "Requested file not found";
+    private static final String ERROR_MESSAGE_INVALID_FILE_ID = "Invalid Input";
 
-    private static final String ERROR_MESSAGE_INVALID_INPUT = "Invalid Input";
+    private static final String ERROR_MESSAGE_INVALID_FILE = "Invalid file";
 
-    File file = new File(FILE_URL);
-    FileInfo fileInfo = new FileInfo(uuid, USER_NAME, FILE_NAME, FILE_URL, new Date());
+    private final String ERROR_MESSAGE_INVALID_USER_NAME = "Provide valid username";
 
+    private  final String ERROR_MESSAGE_INVALID_FILE_EXTENSION = "Only .txt files are allowed to upload";
+
+    private File file = new File(FILE_URL);
+    private FileInfo fileInfo = new FileInfo(uuid, USER_NAME, FILE_NAME, FILE_URL, new Date());
 
     @Test
     void testGetFileSuccess() throws InvalidInputException, FileInfoNotFoundException {
@@ -59,14 +62,16 @@ public class FileStorageServiceTest {
     @Test
     void testGetFileNotFoundError()  {
         when(fileRepository.findByFileId(uuid)).thenReturn(Optional.empty());
+        ReflectionTestUtils.setField(fileStorageService , "fileInfoNotFoundMessage", ERROR_MESSAGE_FILE_NOT_FOUND);
         FileInfoNotFoundException exception = assertThrows(FileInfoNotFoundException.class, ()-> fileStorageService.get(uuid.toString()));
-//        assertEquals( ERROR_MESSAGE_FILE_NOT_FOUND, exception.getMsg());
+        assertEquals( ERROR_MESSAGE_FILE_NOT_FOUND, exception.getMsg());
     }
 
     @Test
     void testGetFileInvalidInputError()  {
+        ReflectionTestUtils.setField(fileStorageService , "fileIdInvalidMessage", ERROR_MESSAGE_INVALID_FILE_ID);
         InvalidInputException exception = assertThrows(InvalidInputException.class, ()-> fileStorageService.get("123"));
-//        assertEquals( ERROR_MESSAGE_FILE_NOT_FOUND, exception.getMsg());
+        assertEquals( ERROR_MESSAGE_INVALID_FILE_ID, exception.getMsg());
     }
 
     @Test
@@ -79,7 +84,22 @@ public class FileStorageServiceTest {
 
     @Test
     void testFileUploadWithoutUserName() {
-        assertThrows(InvalidInputException.class, () -> fileStorageService.save(file, ""));
+        ReflectionTestUtils.setField(fileStorageService , "invalidUserNameMessage", ERROR_MESSAGE_INVALID_USER_NAME);
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> fileStorageService.save(file, ""));
     }
 
+    @Test
+    void testFileUploadFileExtensionValidation() {
+        File file = new File( "C://test//test.jpg" );
+        ReflectionTestUtils.setField(fileStorageService , "invalidExtensionMessage", ERROR_MESSAGE_INVALID_FILE_EXTENSION);
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> fileStorageService.save(file, USER_NAME));
+        assertEquals( ERROR_MESSAGE_INVALID_FILE_EXTENSION, exception.getMsg());
+    }
+
+    @Test
+    void testFileUploadWithoutFile() {
+        ReflectionTestUtils.setField(fileStorageService , "invalidFileMessage", ERROR_MESSAGE_INVALID_FILE);
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> fileStorageService.save(null, USER_NAME));
+        assertEquals( ERROR_MESSAGE_INVALID_FILE, exception.getMsg());
+    }
 }

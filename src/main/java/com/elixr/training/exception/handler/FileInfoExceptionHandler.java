@@ -1,7 +1,7 @@
 package com.elixr.training.exception.handler;
 
 import com.elixr.training.constants.ResponseStatus;
-import com.elixr.training.dto.ResponseData;
+import com.elixr.training.response.ResponseData;
 import com.elixr.training.exception.FileInfoNotFoundException;
 import com.elixr.training.exception.InvalidInputException;
 import com.elixr.training.service.TracingService;
