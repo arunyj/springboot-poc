@@ -32,7 +32,9 @@ public class FileStorageServiceTest {
 
     private static final String USER_NAME = "Test User";
     private static final String FILE_NAME = "test.txt";
-    private static final String FILE_URL = "C://test//" + FILE_NAME;
+
+    private static final String UPLOAD_FOLDER = "C://test//";
+    private static final String FILE_URL =  UPLOAD_FOLDER + FILE_NAME;
     private static final String CONTENT_TYPE = "text/plain";
     private static final String FILE_CONTENT = "test";
     private UUID uuid = UUID.randomUUID();
@@ -77,6 +79,7 @@ public class FileStorageServiceTest {
     @Test
     void testFileUploadSuccess() throws InvalidInputException {
         Mockito.when(fileRepository.save(any(FileInfo.class))).thenReturn(fileInfo);
+        ReflectionTestUtils.setField(fileStorageService , "uploadFolder", UPLOAD_FOLDER);
         FileInfo fileInfoReceived = fileStorageService.save(file, USER_NAME);
         assertEquals( fileInfoReceived.getFileName(), fileInfo.getFileName());
         assertEquals(fileInfoReceived.getFileId(), fileInfo.getFileId());
@@ -86,6 +89,7 @@ public class FileStorageServiceTest {
     void testFileUploadWithoutUserName() {
         ReflectionTestUtils.setField(fileStorageService , "invalidUserNameMessage", ERROR_MESSAGE_INVALID_USER_NAME);
         InvalidInputException exception = assertThrows(InvalidInputException.class, () -> fileStorageService.save(file, ""));
+        assertEquals( ERROR_MESSAGE_INVALID_USER_NAME, exception.getMsg());
     }
 
     @Test
@@ -94,6 +98,14 @@ public class FileStorageServiceTest {
         ReflectionTestUtils.setField(fileStorageService , "invalidExtensionMessage", ERROR_MESSAGE_INVALID_FILE_EXTENSION);
         InvalidInputException exception = assertThrows(InvalidInputException.class, () -> fileStorageService.save(file, USER_NAME));
         assertEquals( ERROR_MESSAGE_INVALID_FILE_EXTENSION, exception.getMsg());
+    }
+
+    @Test
+    void testFileUploadToNonExistingPath() {
+        ReflectionTestUtils.setField(fileStorageService , "uploadFolder", "C://test//non-exist//");
+        ReflectionTestUtils.setField(fileStorageService , "invalidFileMessage", ERROR_MESSAGE_INVALID_FILE);
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> fileStorageService.save(file, USER_NAME));
+        assertEquals( ERROR_MESSAGE_INVALID_FILE, exception.getMsg());
     }
 
     @Test
