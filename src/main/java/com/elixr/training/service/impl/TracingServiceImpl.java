@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class TracingServiceImpl implements TracingService {
 
     @Autowired
-    Tracer tracer;
+    private Tracer tracer;
 
     @Override
     public String getTraceId() {
