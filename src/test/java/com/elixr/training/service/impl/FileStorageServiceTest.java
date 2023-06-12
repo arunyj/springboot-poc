@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,9 +31,12 @@ public class FileStorageServiceTest {
     private static final String FILE_URL = "C://test//" + FILE_NAME;
     private UUID uuid = UUID.randomUUID();
     private FileInfo fileToReturn = new FileInfo(uuid, USER_NAME, FILE_NAME, FILE_URL, new Date());
+    private static final String ERROR_MESSAGE_FILE_NOT_FOUND = "Requested file not found";
+
+    private static final String ERROR_MESSAGE_INVALID_INPUT = "Invalid Input";
 
     @Test
-    void testGetFile() throws FileInfoNotFoundException, InvalidInputException {
+    void testGetFileSuccess() throws InvalidInputException, FileInfoNotFoundException {
         Optional<FileInfo> optionalFileInfo = Optional.of(fileToReturn);
         when(fileRepository.findByFileId(uuid)).thenReturn(optionalFileInfo);
         FileInfo fileInfo = fileStorageService.get(uuid.toString());
@@ -40,6 +44,19 @@ public class FileStorageServiceTest {
         assertEquals(fileInfo.getFileId(), uuid);
         assertEquals(fileInfo.getUser(), USER_NAME);
         assertEquals(fileInfo.getUrl(), FILE_URL);
+    }
+
+    @Test
+    void testGetFileNotFoundError()  {
+        when(fileRepository.findByFileId(uuid)).thenReturn(Optional.empty());
+        FileInfoNotFoundException exception = assertThrows(FileInfoNotFoundException.class, ()-> fileStorageService.get(uuid.toString()));
+//        assertEquals( ERROR_MESSAGE_FILE_NOT_FOUND, exception.getMsg());
+    }
+
+    @Test
+    void testGetInvalidInputError()  {
+        InvalidInputException exception = assertThrows(InvalidInputException.class, ()-> fileStorageService.get("123"));
+//        assertEquals( ERROR_MESSAGE_FILE_NOT_FOUND, exception.getMsg());
     }
 
 }
