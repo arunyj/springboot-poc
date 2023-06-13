@@ -92,9 +92,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public FileInfo get(String id) throws FileInfoNotFoundException, InvalidInputException {
         UUID uuid = converToUUID(id);
-        Optional<FileInfo> optional = fileRepository.findByFileId(uuid);
-        return optional.map(fileInfo-> fileInfo)
-                .orElseThrow(() -> new FileInfoNotFoundException(fileInfoNotFoundMessage));
+        return fileRepository.findByFileId(uuid).orElseThrow(() -> new FileInfoNotFoundException(fileInfoNotFoundMessage));
     }
 
     private static String getFileExtension(String fullName) {
